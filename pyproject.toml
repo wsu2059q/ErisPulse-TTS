@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ErisPulse-TTS"
+version = "0.1.0"
+description = "ErisPulse 通用 TTS 插件：任意 OpenAI 兼容语音合成接口（默认 SiliconFlow CosyVoice2），合成 + 发语音 + 音色克隆，QvQChat 生态约定"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["tts", "voice", "speech", "cosyvoice", "siliconflow", "erispulse", "plugin"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "ErisPulse>=2.8.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[project.urls]
+"homepage" = "https://github.com/wsu2059q/ErisPulse-TTS"
+"Issues" = "https://github.com/wsu2059q/ErisPulse-TTS/issues"
+
+[project.entry-points."erispulse.module"]
+"TTS" = "TTS:Main"
+
+[tool.setuptools.packages.find]
+include = ["TTS*"]
+
+# uv 配置
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple"
+default = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

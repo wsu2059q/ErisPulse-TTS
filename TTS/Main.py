@@ -36,8 +36,8 @@ __version__ = "0.1.0"
 SERVICES = [
     {
         "name": "tts_speak",
-        "description": "把文本合成为语音并直接发送到指定会话；适合短句口语、角色扮演、深夜朗读；代码/长文/表格不要用语音",
-        "signature": "(text: str, platform: str, target_id: str, target_type: str = 'group', voice: str = '', speed: float = 0, emotion: str = '') -> str",
+        "description": "把文本合成为语音并直接发送到指定会话；适合短句口语、角色扮演、深夜朗读；代码/长文/表格不要用语音。多账户后端建议留空 account 让调用方绑定，或显式传账户 id",
+        "signature": "(text: str, platform: str, target_id: str, target_type: str = 'group', voice: str = '', speed: float = 0, emotion: str = '', account: str = '') -> str",
     },
     {
         "name": "tts_synthesize",
@@ -91,7 +91,9 @@ EXTENSION_PROMPTS = [
     {
         "text": (
             "语音（TTS）可用时：短句口语、寒暄调侃、角色扮演、深夜闲聊，或用户明确想听声音时，"
-            "用 tts_speak 直接发语音；代码、表格、链接、长文和任务结果保持文字。"
+            "可以发语音；代码、表格、链接、长文和任务结果保持文字。"
+            "推荐流程：先 tts_synthesize 拿到音频文件，再用 send_message 的 audio_path 发送"
+            "（账户/目标自动随会话绑定，最稳）；tts_speak 直发也可用，多账户后端记得传 account。"
             "同一内容不要既发语音又发文字；合成失败就回退文字，不要让用户等不到回复。"
         ),
         "priority": 5,

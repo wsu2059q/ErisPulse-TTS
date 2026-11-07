@@ -29,6 +29,7 @@ SCHEMAS = {
             "voice": {"type": "string", "description": "音色（系统预设需带模型前缀，或克隆音色的 uri；留空用默认音色）"},
             "speed": {"type": "number", "description": "语速 0.25-4.0，留空用配置"},
             "emotion": {"type": "string", "description": "情感（如 高兴/悲伤/温柔；SiliconFlow CosyVoice 支持，其他提供方忽略）"},
+            "account": {"type": "string", "description": "发送账户 id（多账户后端必填以指定哪个 bot 发送；留空用适配器默认账户）"},
         },
         "required": ["text", "platform", "target_id"],
     },
@@ -127,12 +128,13 @@ class ServiceMixin:
 
     async def tts_speak(self, text: str = "", platform: str = "", target_id: str = "",
                         target_type: str = "group", voice: str = "", speed=None,
-                        emotion: str = "", **_) -> str:
+                        emotion: str = "", account: str = "", **_) -> str:
         text = str(text or "").strip()
         if not text:
             return texts.t("empty_text")
         platform = str(platform or "").strip()
         target_id = str(target_id or "").strip()
+        account = str(account or "").strip()
         if not platform or not target_id:
             return texts.t("bad_target")
         adapter = self.sdk.adapter.get(platform)
@@ -154,7 +156,11 @@ class ServiceMixin:
         last_error = ""
         for path in paths:
             try:
-                chain = adapter.Send.To(target, target_id)
+# 多账户后端：必须绑指定账户发送（不绑则适配器按默认 bot 发出，张冠李戴）
+                chain = adapter.Send
+                if account:
+                    chain = chain.Using(account)
+                chain = chain.To(target, target_id)
                 sender = getattr(chain, method, None)
                 if sender is None:
                     last_error = f"adapter has no send method: {method}"

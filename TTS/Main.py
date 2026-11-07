@@ -31,7 +31,7 @@ from .Config import TTSConfig
 from .provider import SpeechClient, resolve_base_url, system_voices
 from .service import ACCESS, SCHEMAS, ServiceMixin
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 SERVICES = [
     {
@@ -90,12 +90,14 @@ SERVICES = [
 EXTENSION_PROMPTS = [
     {
         "text": (
-            "发语音（原生能力）：只有用户明确提出要语音/朗读/文字转语音时才用，"
-            "用户没提就一律发文字，不要主动发语音。流程两步："
-            "tts_synthesize(text) 返回的 file 字段就是音频路径 → send_message(audio_path=该路径) 发出"
-            "（账户/目标自动随会话绑定）；也可 tts_speak(text, account=本账户) 一步直发"
-            "（桥接工具名 eco_TTS_ 开头）。"
-            "合成失败立即改用文字回复并简单说明，不要反复重试或让用户干等。"
+            "发语音（原生能力）：用不用由你自己判断——短句口语、寒暄调侃、角色扮演、"
+            "深夜闲聊、情绪上头，或用户明确想听声音时都合适；"
+            "代码、表格、链接、长文和任务结果保持文字。"
+            "流程两步：tts_synthesize(text) 返回的 file 字段就是音频路径 → "
+            "send_message(audio_path=该路径) 发出（账户/目标自动随会话绑定）；"
+            "也可 tts_speak(text, account=本账户) 一步直发（桥接工具名 eco_TTS_ 开头）。"
+            "同一内容不要既发语音又发文字；合成失败立即改用文字回复并简单说明，"
+            "不要反复重试或让用户干等。"
         ),
         "priority": 5,
     },

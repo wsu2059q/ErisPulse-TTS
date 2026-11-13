@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ErisPulse-TTS"
-version = "0.1.3"
+version = "0.1.4"
 description = "ErisPulse 通用 TTS 插件：任意 OpenAI 兼容语音合成接口（默认 SiliconFlow CosyVoice2），合成 + 发语音 + 音色克隆，QvQChat 生态约定"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -12,7 +12,7 @@
 
 语音这件事本来不该绑死在某个厂商身上。SiliconFlow 的 TTS 端点与 OpenAI 的 `/audio/speech` 同构——同样的 `model` / `input` / `voice` / `response_format` 参数——所以模块只实现一套协议：换 `provider` 和 `base_url` 就换供应商，`model` 和 `voice` 决定听起来是谁。默认配置直接指向 SiliconFlow 的 `FunAudioLLM/CosyVoice2-0.5B`，开箱即用。
 
-模块本身不做"什么时候该说话"的判断。它把能力交给生态：`tts_speak`、`tts_synthesize` 等六个服务经 QvQChat 的生态桥变成 AI 工具，再通过 `qvq_extensions` 注入一条使用建议——短句口语适合语音，代码、表格、长文和任务结果保持文字。由模型自己决定调用与否，模块只负责把文字变成声音、把声音送到会话。装它不需要改 QvQChat，卸它也不会留下任何钩子。
+模块本身不做"什么时候该说话"的判断。它把能力交给生态：`tts_speak`、`tts_synthesize` 等服务经 QvQChat 的生态桥变成 AI 工具，再通过 `qvq_extensions` 注入一条使用建议——短句口语适合语音，代码、表格、长文和任务结果保持文字。由模型自己决定调用与否，模块只负责把文字变成声音、把声音送到会话。QvQChat 4.6.7 起还有更轻的一条路：模型在回复正文里写 `[语音:文本]`，投递层取合成产物并按当前会话代发，合成失败自动改发文字——`qvq_media` 就是这个约定的声明入口。装它不需要改 QvQChat，卸它也不会留下任何钩子。
 
 <p>
 
@@ -76,6 +76,7 @@ send_method = "Voice"             # 部分平台用 Record
 | `tts_clone(name, audio, text, model="")` | 上传参考音频创建音色，返回 `uri`（需服务商实名认证） | admin |
 | `tts_delete_voice(uri)` | 删除克隆音色 | admin |
 | `tts_status()` | 运行状态、默认音色与缓存统计 | safe |
+| `qvq_media()` | 约定服务：声明承接 QvQChat 回复内联标记 `[语音:文本]` | safe |
 
 `audio` 支持 http(s) URL、本地文件路径或 base64。参考音频建议 8–10 秒、单人、吐字清晰、无背景噪音、无房间回声。
 
@@ -99,6 +100,7 @@ reference_text  = "参考音频里说的原文"
 - `qvq_schemas` 给每个参数配上说明，模型知道 `text`/`voice` 该写什么
 - `qvq_access` 自声明 `tts_speak` / `tts_synthesize` / `tts_voices` 对普通成员开放，克隆与删除保持管理员
 - `qvq_extensions` 注入一条使用建议，让 AI 自己判断何时该发语音、何时保持文字
+- `qvq_media` 声明承接内联标记 `[语音:文本]`：模型直接在回复里写要说的话，投递层合成后按会话发出（QvQChat 4.6.7+；未声明时宿主按 `tts_synthesize` / `tts_speak` 服务名兜底，旧版本照常可用）
 
 QvQChat 侧没有任何 TTS 专属配置或代码路径——这是刻意的：主模块不认识任何具体生态模块，能力全靠约定服务注入。
 

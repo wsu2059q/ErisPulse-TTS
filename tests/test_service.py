@@ -111,7 +111,7 @@ def test_meta_services_cover_all_handlers():
     assert names == [
         "tts_speak", "tts_synthesize", "tts_voices", "tts_clone",
         "tts_delete_voice", "tts_status", "qvq_schemas", "qvq_access", "qvq_settings",
-        "qvq_extensions",
+        "qvq_extensions", "qvq_media",
     ]
     for entry in SERVICES:
         assert hasattr(Main, entry["name"]), entry["name"]
@@ -135,3 +135,11 @@ async def test_qvq_extensions_injects_usage_prompt():
     text = data["prompts"][0]["text"]
     assert "tts_speak" in text
     assert "文字" in text or "text" in text.lower()
+
+
+async def test_qvq_media_declares_voice_marker(tmp_path):
+    main = make_main(cache_dir=str(tmp_path))
+    data = await main.qvq_media()
+    assert data["voice"]["service"] == "tts_synthesize"
+    assert data["voice"]["mode"] == "produce"
+    assert data["voice"]["path_keys"][0] == "files"

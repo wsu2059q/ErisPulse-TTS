@@ -31,7 +31,7 @@ from .Config import TTSConfig
 from .provider import SpeechClient, resolve_base_url, system_voices
 from .service import ACCESS, SCHEMAS, ServiceMixin
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 SERVICES = [
     {
@@ -84,6 +84,11 @@ SERVICES = [
         "description": "约定服务：向 QvQChat 注入语音使用建议（提示词），由 AI 自行判断何时用语音",
         "signature": "() -> dict",
     },
+    {
+        "name": "qvq_media",
+        "description": "约定服务：声明本模块承接回复内联标记 [语音:文本]（QvQChat 投递层取合成文件后按会话代发；未声明时宿主按 tts_synthesize/tts_speak 服务名兜底）",
+        "signature": "() -> dict",
+    },
 ]
 
 # 注入 QvQChat 系统提示的使用建议：只给判断依据，是否调用由 AI 决定
@@ -93,11 +98,12 @@ EXTENSION_PROMPTS = [
             "发语音（原生能力）：用不用由你自己判断——短句口语、寒暄调侃、角色扮演、"
             "深夜闲聊、情绪上头，或用户明确想听声音时都合适；"
             "代码、表格、链接、长文和任务结果保持文字。"
-            "流程两步：tts_synthesize(text) 返回的 file 字段就是音频路径 → "
-            "send_message(audio_path=该路径) 发出（账户/目标自动随会话绑定）；"
-            "也可 tts_speak(text, account=本账户) 一步直发（桥接工具名 eco_TTS_ 开头）。"
-            "同一内容不要既发语音又发文字；合成失败立即改用文字回复并简单说明，"
-            "不要反复重试或让用户干等。"
+            "首选写法：直接在回复里写 [语音:要说的话]，投递层会合成并按当前会话发出，"
+            "不用调用工具；合成失败会自动改发文字。"
+            "需要指定音色、语速、情绪或分成多段精细控制时，才走工具："
+            "tts_synthesize(text) 返回的 path 是音频路径 → send_message(audio_path=该路径)，"
+            "或 tts_speak(text, account=本账户) 一步直发（桥接工具名 eco_TTS_ 开头）。"
+            "同一内容不要既发语音又发文字，不要反复重试或让用户干等。"
         ),
         "priority": 5,
     },

@@ -260,6 +260,15 @@ class ServiceMixin:
 
         return {"prompts": [dict(item) for item in EXTENSION_PROMPTS]}
 
+    async def qvq_media(self, **_) -> dict:
+        """声明承接 QvQChat 回复内联标记 [语音:文本]（QvQChat 4.6.7+）。
+
+        produce 模式：宿主取合成产物（files 全段，path 兜底）后按当前会话代发，
+        合成失败返回 ok=False，宿主据此降级为文字。
+        """
+        return {"voice": {"service": "tts_synthesize", "arg": "text",
+                          "mode": "produce", "path_keys": ["files", "path"]}}
+
 
 def output_dir(config) -> Path:
     return Path(str(getattr(config, "cache_dir", "") or "data/TTS/audio")).expanduser()
